@@ -24,7 +24,6 @@ public class App
     static String url = "jdbc:mysql://127.0.0.1:3306/change3.1.1";
     static String username = "root";
     static String password = "root";
-
     public static void main( String[] args ) {
 
         System.out.print("请输入值 例如 (用户id=用户名 coinCodes CPCT,USDT)  例如 2=张三 81=李四 coinCodes CPCT,USDT ,输入 quit 退出：");
