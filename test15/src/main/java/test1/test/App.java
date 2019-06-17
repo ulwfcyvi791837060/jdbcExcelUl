@@ -21,10 +21,6 @@ import java.util.*;
 public class App 
 {
 
-    /*static String url = "jdbc:mysql://instance-cpct.c6kzigybqduh.ap-southeast-1.rds.amazonaws.com:3306/hurong_web";
-    static String username = "James";
-    static String password = "liuxiaowei1127";*/
-
     static String url = "jdbc:mysql://127.0.0.1:3306/change3.1.1";
     static String username = "root";
     static String password = "root";
