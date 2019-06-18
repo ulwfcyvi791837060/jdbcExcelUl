@@ -21,58 +21,42 @@ import java.util.*;
 public class App 
 {
 
-    static String url = "jdbc:mysql://127.0.0.1:3306/change3.1.1";
-    static String username = "root";
-    static String password = "root";
+
+    static String url = "jdbc:mysql://rm-j6c2sl8r7ky0wica8yo.mysql.rds.aliyuncs.com:3306/hurong_web";
+    static String username = "cpct_yf_rd";
+    static String password ="ac3)u1L*Kh9YoOcm";
+
+
     public static void main( String[] args ) {
 
-        System.out.print("请输入值 例如 (用户id=用户名 coinCodes CPCT,USDT)  例如 2=张三 81=李四 coinCodes CPCT,USDT ,输入 quit 退出：");
+        System.out.print("请输入手机号 18487278206,17749995146 , ','号分隔 ,输入 quit 退出：");
         Scanner scanner = new Scanner(System.in);
-
-        //"2=张三 81=李四 coinCodes USDT,BTC,ETH,OMG,ZEC,DASH,LTC,BCH,CPCT,TYT,MOAC,LEND,GOT,NTK,FUEL,CDT,SNT,HT,VOLLAR";
-        //"2=张三 81=李四 coinCodes USDT,BTC";
 
         while(scanner.hasNextLine()){
             String inputString = scanner.nextLine();
-            if("quit".equals(inputString)){
+            if(inputString==null||"".equals(inputString)||"quit".equals(inputString)){
                 break;
             }
-            String two[] = inputString.split("coinCodes");
+            String mobiles[] = inputString.split(",");
+            for (int j = 0; j < mobiles.length; j++) {
+                String mobile = mobiles[j];
 
-            String stringArray[] = two[0].split(" ");
-            ArrayList<Integer> customIds = new ArrayList<>();
-            ArrayList<String> customNames = new ArrayList<>();
-            for (int i = 0; i < stringArray.length; i++) {
-                String[] split = stringArray[i].split("=");
-                customIds.add(Integer.parseInt(split[0]));
-                customNames.add(split[1]);
-            }
-
-            String coinCodeArray[] = two[1].split(",");
-            ArrayList<String> coinCodes = new ArrayList<>();
-            for (int i = 0; i < coinCodeArray.length; i++) {
-                coinCodes.add(coinCodeArray[i]);
-            }
-
-
-            System.out.println(customIds);
-            System.out.println(customNames);
-            System.out.println(coinCodes);
-
-            for (int i = 0; i < coinCodes.size(); i++) {
-                String s = coinCodes.get(i).trim();
-                System.out.println("正在导出==>"+s);
-                for (int j = 0; j <customIds.size(); j++) {
-                    Integer integer = customIds.get(j);
-                    String s1 = customNames.get(j);
-                    hotExcel(s,integer,s1);
+                List<String> coinCodesList  =new ArrayList<>();
+                String s2 = accountInfo(mobile, coinCodesList);
+                String[] split = s2.split("=");
+                Long customId =Long.parseLong(split[0].trim());
+                String trueName=split[1].trim();
+                System.out.println(coinCodesList);
+                for (int i = 0; i < coinCodesList.size(); i++) {
+                    String s = coinCodesList.get(i).trim();
+                    System.out.println("正在导出==>"+ s + " " +trueName + " " +customId);
+                    hotExcel(s,customId,trueName);
                     System.out.println("hotExcel导出完成");
-                    coldExcel(s,integer,s1);
+                    coldExcel(s,customId,trueName);
                     System.out.println("coldExcel导出完成");
-                    System.out.println(customIds);
+                    System.out.println(customId);
                 }
             }
-
             //System.out.println(inputString);
         }
 
@@ -120,7 +104,7 @@ public class App
 
     }
 
-    static void hotExcel(String coinCode, int customerId,String userName){
+    static void hotExcel(String coinCode, Long customerId,String userName){
         List<String> list  =new ArrayList<>();
 
         String sql = "-- hot\n" +
@@ -251,7 +235,7 @@ public class App
     }
 
 
-    static void coldExcel(String coinCode, int customerId,String userName){
+    static void coldExcel(String coinCode, Long customerId,String userName){
         List<String> list  =new ArrayList<>();
         String sql = "-- cold\n" +
                 "select '"+coinCode+" 冻结账户',-- i.mobilePhone,\n" +
@@ -364,6 +348,105 @@ public class App
         }finally {
             closeAll(rs,pstmt,conn);
         }
+    }
+
+
+    static String accountInfo(String mobilePhone,List<String> coinCodesList){
+
+        String sql = "-- ex_digitalmoney_account\n" +
+                "\n" +
+                "SELECT -- a.modified,p.country,c.phoneState,c.phone,c.googleState,-- ==1\n" +
+                "\tconcat(\"id= \",a.id),a.coinCode,p.customerId customerId,concat(p.surname,p.trueName),p.mobilePhone,\n" +
+                "\t'-------------',concat(\"hotMoney= \",a.hotMoney),concat(\"coldMoney= \",a.coldMoney)\n" +
+                "\t\n" +
+                "FROM\n" +
+                "\tex_digitalmoney_account a\n" +
+                "join app_person_info p on a.customerId=p.customerId\n" +
+                "join app_customer c on c.id =p.customerId\n" +
+                "-- join (select * from ex_digitalmoney_account b where b.coinCode='CPCT') d on d.customer13452604699Id=a.customerId\n" +
+                "WHERE 1=1 \n" +
+                "\t          -- and  a.customerId = 1376\n" +
+                " \n" +
+                "-- and  a.hotMoney<0 \n" +
+                "-- ORDER BY a.modified desc \n" +
+                "     and  p.mobilePhone ="+mobilePhone+" \n" +
+                "\n" +
+                "   -- and  p.mobilePhone =15908155681\t\t\t\t \t\t\t\t\n" +
+                "    -- and p.email='cpctnpc4@cpct.pro'\n" +
+                "-- and concat(p.surname,p.surname) like '%麟%'\n" +
+                " \n" +
+                " -- and  a.publicKey='0x6db7da10409d11cc19226020cd5498915c767d8b'\n" +
+                "\n" +
+                "-- 17749995146 \n" +
+                "\n" +
+                "-- 15396370089 陈文农\n" +
+                "-- 15396370988 刘瑞宝\n" +
+                "\n" +
+                "-- #机构账号\n" +
+                "-- app.jigou=cpctnpc2@cpct.pro,cpctnpc1@cpct.pro,cpctnpc3@cpct.pro,cpctnpc4@cpct.pro\n" +
+                "\n" +
+                "#系统账号\n" +
+                "-- app.xitong=15817460827,12@qq.com\n" +
+                "\n" +
+                "\n" +
+                "-- 18307236420 余凡\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "-- a.coldmoney <0 order by modified desc";
+        Connection conn = getConn();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String customId = null;
+        String trueName = null;
+        try {
+            pstmt = (PreparedStatement)conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            int col = rs.getMetaData().getColumnCount();
+            System.out.println("============================");
+            List<Map> coinList =null;
+            int z=0;
+            int j=0;
+            boolean result=false;
+            while (rs.next()) {
+                result=true;
+                for (int i = 1; i <= col; i++) {
+                    System.out.print(rs.getString(i) + "\t");
+                    if(i==2){
+                        coinCodesList.add(rs.getString(i));
+                    }
+                    if(i==3){
+                        if(customId==null||"".equals(customId.trim())){
+                            customId=rs.getString(i);
+                        }
+
+                    }
+                    if(i==4){
+                        if(trueName==null||"".equals(trueName.trim())){
+                            trueName=rs.getString(i);
+                        }
+                    }
+                    if ((i == 2) && (rs.getString(i).length() < 8)) {
+                        System.out.print("\t");
+                    }
+                }
+                System.out.println("");
+                j++;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeAll(rs,pstmt,conn);
+        }
+        return customId+"="+trueName;
     }
 
     private static Connection getConn() {
